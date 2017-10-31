@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -208,13 +208,6 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item,int p_column,int p_id)
 
 		if (n->is_type("Spatial")) {
 
-			Spatial *ci = n->cast_to<Spatial>();
-			if (!ci->is_visible() && ci->get_parent_spatial() && !ci->get_parent_spatial()->is_visible()) {
-				error->set_text(TTR("This item cannot be made visible because the parent is hidden. Unhide the parent first."));
-				error->popup_centered_minsize();
-				return;
-			}
-
 			bool v = !bool(n->call("is_hidden"));
 			undo_redo->create_action(TTR("Toggle Spatial Visible"));
 			undo_redo->add_do_method(n,"_set_visible_",!v);
@@ -222,12 +215,6 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item,int p_column,int p_id)
 			undo_redo->commit_action();
 		} else if (n->is_type("CanvasItem")) {
 
-			CanvasItem *ci = n->cast_to<CanvasItem>();
-			if (!ci->is_visible() && ci->get_parent_item() && !ci->get_parent_item()->is_visible()) {
-				error->set_text(TTR("This item cannot be made visible because the parent is hidden. Unhide the parent first."));
-				error->popup_centered_minsize();
-				return;
-			}
 			bool v = !bool(n->call("is_hidden"));
 			undo_redo->create_action(TTR("Toggle CanvasItem Visible"));
 			undo_redo->add_do_method(n,v?"hide":"show");
@@ -415,6 +402,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node,TreeItem *p_parent) {
 			if (!p_node->is_connected("visibility_changed",this,"_node_visibility_changed"))
 				p_node->connect("visibility_changed",this,"_node_visibility_changed",varray(p_node));
 
+			_update_visibility_color(p_node, item);
 		} else if (p_node->is_type("Spatial")) {
 
 			bool h = p_node->call("is_hidden");
@@ -426,6 +414,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node,TreeItem *p_parent) {
 			if (!p_node->is_connected("visibility_changed",this,"_node_visibility_changed"))
 				p_node->connect("visibility_changed",this,"_node_visibility_changed",varray(p_node));
 
+			_update_visibility_color(p_node, item);
 		}
 
 	}
@@ -491,9 +480,20 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
 	else
 		item->set_button(0,idx,get_icon("Visible","EditorIcons"));
 
-
+	_update_visibility_color(p_node, item);
 }
 
+void SceneTreeEditor::_update_visibility_color(Node *p_node, TreeItem *p_item) {
+	if (p_node->is_type("CanvasItem") || p_node->is_type("Spatial")) {
+		Color color(1,1,1,1);
+		bool visible_on_screen = p_node->call("is_visible");
+		if (!visible_on_screen) {
+			color = Color(0.6,0.6,0.6,1);
+		}
+		int idx=p_item->get_button_by_id(0,BUTTON_VISIBILITY);
+		p_item->set_button_color(0,idx,color);
+	}
+}
 
 void SceneTreeEditor::_node_script_changed(Node *p_node) {
 
@@ -725,6 +725,12 @@ void SceneTreeEditor::set_selected(Node *p_node,bool p_emit_selected) {
 	TreeItem* item=p_node?_find(tree->get_root(),p_node->get_path()):NULL;
 
 	if (item) {
+		// make visible when it's collapsed
+		TreeItem* node=item->get_parent();
+		while (node && node!=tree->get_root()) {
+			node->set_collapsed(false);
+			node=node->get_parent();
+		}
 		item->select(0);
 		item->set_as_cursor(0);
 		selected=p_node;
@@ -971,6 +977,10 @@ Variant SceneTreeEditor::get_drag_data_fw(const Point2& p_point,Control* p_from)
 	return drag_data;
 }
 
+bool SceneTreeEditor::_is_script_type(const StringName &p_type) const {
+	return (script_types->find(p_type));
+}
+
 bool SceneTreeEditor::can_drop_data_fw(const Point2& p_point,const Variant& p_data,Control* p_from) const {
 
 	if (!can_rename)
@@ -998,9 +1008,13 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2& p_point,const Variant& p_da
 		if (files.size()==0)
 			return false; //weird
 
+		if (_is_script_type(EditorFileSystem::get_singleton()->get_file_type(files[0]))) {
+			tree->set_drop_mode_flags(Tree::DROP_MODE_ON_ITEM);
+			return true;
+		}
 
 		for(int i=0;i<files.size();i++) {
-			String file = files[0];
+			String file = files[i];
 			String ftype = EditorFileSystem::get_singleton()->get_file_type(file);
 			if (ftype!="PackedScene")
 				return false;
@@ -1044,7 +1058,15 @@ void SceneTreeEditor::drop_data_fw(const Point2& p_point,const Variant& p_data,C
 
 	if (String(d["type"])=="files") {
 
-		emit_signal("files_dropped",d["files"],np,section);
+		Vector<String> files = d["files"];
+
+
+		String ftype = EditorFileSystem::get_singleton()->get_file_type(files[0]);
+		if (_is_script_type(ftype)) {
+			emit_signal("script_dropped", files[0],np);
+		} else {
+			emit_signal("files_dropped",files,np,section);
+		}
 	}
 
 }
@@ -1113,6 +1135,7 @@ void SceneTreeEditor::_bind_methods() {
 	ADD_SIGNAL( MethodInfo("nodes_dragged") );
 	ADD_SIGNAL( MethodInfo("nodes_rearranged",PropertyInfo(Variant::ARRAY,"paths"),PropertyInfo(Variant::NODE_PATH,"to_path"),PropertyInfo(Variant::INT,"type") ) );
 	ADD_SIGNAL( MethodInfo("files_dropped",PropertyInfo(Variant::STRING_ARRAY,"files"),PropertyInfo(Variant::NODE_PATH,"to_path"),PropertyInfo(Variant::INT,"type") ) );
+	ADD_SIGNAL( MethodInfo("script_dropped",PropertyInfo(Variant::STRING,"file"),PropertyInfo(Variant::NODE_PATH,"to_path")));
 	ADD_SIGNAL( MethodInfo("rmb_pressed",PropertyInfo(Variant::VECTOR2,"pos")) ) ;
 
 	ADD_SIGNAL( MethodInfo("open") );
@@ -1209,12 +1232,16 @@ SceneTreeEditor::SceneTreeEditor(bool p_label,bool p_can_rename, bool p_can_open
 	update_timer->set_wait_time(0.5);
 	add_child(update_timer);
 
+	script_types = memnew(List<StringName>);
+	ObjectTypeDB::get_inheriters_from("Script", script_types);
+
 }
 
 
 
 SceneTreeEditor::~SceneTreeEditor() {
 
+	memdelete(script_types);
 }
 
 

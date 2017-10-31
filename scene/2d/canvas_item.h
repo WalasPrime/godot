@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -193,7 +193,7 @@ public:
 
 	void update();
 
-	void set_blend_mode(BlendMode p_blend_mode);
+	virtual void set_blend_mode(BlendMode p_blend_mode);
 	BlendMode get_blend_mode() const;
 
 	virtual void set_light_mask(int p_light_mask);

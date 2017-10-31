@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -243,12 +243,22 @@ void BaseButton::_notification(int p_what) {
 			update();
 		}
 	}
+	
+	if (p_what==NOTIFICATION_FOCUS_ENTER) {
+		
+		status.hovering=true;
+		update();
+	}
 
 	if (p_what==NOTIFICATION_FOCUS_EXIT) {
 
 		if (status.pressing_button && status.press_attempt) {
 			status.press_attempt=false;
 			status.pressing_button=0;
+			status.hovering=false;
+			update();
+		} else if (status.hovering) {
+			status.hovering=false;
 			update();
 		}
 	}

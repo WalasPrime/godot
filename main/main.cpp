@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -127,7 +127,7 @@ static String unescape_cmdline(const String& p_str) {
 
 void Main::print_help(const char* p_binary) {
 
-	OS::get_singleton()->print(VERSION_FULL_NAME" (c) 2008-2016 Juan Linietsky, Ariel Manzur.\n");
+	OS::get_singleton()->print(VERSION_FULL_NAME" (c) 2008-2017 Juan Linietsky, Ariel Manzur.\n");
 	OS::get_singleton()->print("Usage: %s [options] [scene]\n",p_binary);
 	OS::get_singleton()->print("Options:\n");
 	OS::get_singleton()->print("\t-path [dir] : Path to a game, containing engine.cfg\n");
@@ -159,7 +159,7 @@ void Main::print_help(const char* p_binary) {
 		OS::get_singleton()->print("%s",OS::get_singleton()->get_video_driver_name(i));
 	}
 	OS::get_singleton()->print(")\n");
-	OS::get_singleton()->print("\t-ldpi\t : Force low-dpi mode (OSX Only)");
+	OS::get_singleton()->print("\t-ldpi\t : Force low-dpi mode (OSX Only)\n");
 
 	OS::get_singleton()->print("\t-ad DRIVER\t : Audio Driver (");
 	for (int i=0;i<OS::get_singleton()->get_audio_driver_count();i++) {
@@ -169,8 +169,7 @@ void Main::print_help(const char* p_binary) {
 		OS::get_singleton()->print("%s",OS::get_singleton()->get_audio_driver_name(i));
 	}
     OS::get_singleton()->print(")\n");
-	OS::get_singleton()->print("\t-rthread <mode>\t : Render Thread Mode ('unsafe', 'safe', 'separate).");
-	OS::get_singleton()->print(")\n");
+	OS::get_singleton()->print("\t-rthread <mode>\t : Render Thread Mode ('unsafe', 'safe', 'separate').\n");
 	OS::get_singleton()->print("\t-s,-script [script] : Run a script.\n");
 	OS::get_singleton()->print("\t-d,-debug : Debug (local stdout debugger).\n");
 	OS::get_singleton()->print("\t-rdebug ADDRESS : Remote debug (<ip>:<port> host address).\n");

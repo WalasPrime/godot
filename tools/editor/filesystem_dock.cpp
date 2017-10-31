@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -234,13 +234,6 @@ void FileSystemDock::_dir_selected() {
 
 
 	button_favorite->set_pressed(found);
-	if (ti->get_parent() && ti->get_parent()->get_parent()==tree->get_root() && !ti->get_parent()->get_prev()) {
-
-		//a favorite!!!
-	} else {
-
-
-	}
 
 	if (!split_mode) {
 		_open_pressed(); //go directly to dir

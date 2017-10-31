@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -50,7 +50,8 @@ bool InputEvent::operator==(const InputEvent &p_event) const {
 		case MOUSE_MOTION:
 			return mouse_motion.x == p_event.mouse_motion.x
 				&& mouse_motion.y == p_event.mouse_motion.y
-				&& mouse_motion.relative_x == p_event.mouse_motion.relative_y
+				&& mouse_motion.relative_x == p_event.mouse_motion.relative_x
+				&& mouse_motion.relative_y == p_event.mouse_motion.relative_y
 				&& mouse_motion.button_mask == p_event.mouse_motion.button_mask
 				&& key.mod == p_event.key.mod;
 		case MOUSE_BUTTON:

@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -431,7 +431,7 @@ public:
 	virtual void set_context(int p_context);
 
 	virtual void set_use_vsync(bool p_enable);
-	virtual bool is_vsnc_enabled() const;
+	virtual bool is_vsync_enabled() const;
 
 	Dictionary get_engine_version() const;
 

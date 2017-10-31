@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -718,6 +718,7 @@ public:
 
 	FUNC3(set_boot_image,const Image& , const Color&,bool );
 	FUNC1(set_default_clear_color,const Color& );
+	FUNC0RC(Color,get_default_clear_color );
 
 	FUNC0R(RID,get_test_cube );
 

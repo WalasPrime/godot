@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -1181,6 +1181,7 @@ public:
 
 	virtual void set_boot_image(const Image& p_image, const Color& p_color,bool p_scale)=0;
 	virtual void set_default_clear_color(const Color& p_color)=0;
+	virtual Color get_default_clear_color() const=0;
 
 	enum Features {
 		FEATURE_SHADERS,

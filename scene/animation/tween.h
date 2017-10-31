@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -143,6 +143,7 @@ private:
 
 	void _tween_process(float p_delta);
 	void _set_process(bool p_process,bool p_force=false);
+	void _remove(Object *p_node, String p_key, bool first_only);
 
 protected:
 

@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -103,6 +103,12 @@ void PathSpatialGizmo::set_handle(int p_idx,Camera *p_camera, const Point2& p_po
 
 		if (p.intersects_ray(ray_from,ray_dir,&inters)) {
 
+			if(SpatialEditor::get_singleton()->is_snap_enabled())
+			{
+				float snap = SpatialEditor::get_singleton()->get_translate_snap();
+				inters.snap(snap);
+			}
+			
 			Vector3 local = gi.xform(inters);
 			c->set_point_pos(p_idx,local);
 		}

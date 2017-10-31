@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -101,6 +101,7 @@
 #include "plugins/collision_shape_2d_editor_plugin.h"
 #include "main/input_default.h"
 // end
+#include "tools/editor/editor_settings.h"
 #include "tools/editor/io_plugins/editor_texture_import_plugin.h"
 #include "tools/editor/io_plugins/editor_scene_import_plugin.h"
 #include "tools/editor/io_plugins/editor_font_import_plugin.h"
@@ -1666,12 +1667,15 @@ void EditorNode::_edit_current() {
 
 	if (main_plugin) {
 
-		if (main_plugin!=editor_plugin_screen && (!ScriptEditor::get_singleton() || !ScriptEditor::get_singleton()->is_visible() || ScriptEditor::get_singleton()->can_take_away_focus())) {
+		// special case if use of external editor is true
+		if (main_plugin->get_name() == "Script" && bool(EditorSettings::get_singleton()->get("external_editor/use_external_editor"))){
+			main_plugin->edit(current_obj);
+		}
 
+		else if (main_plugin!=editor_plugin_screen && (!ScriptEditor::get_singleton() || !ScriptEditor::get_singleton()->is_visible() || ScriptEditor::get_singleton()->can_take_away_focus())) {
 			// update screen main_plugin
 
 			if (!changing_scene) {
-
 				if (editor_plugin_screen)
 					editor_plugin_screen->make_visible(false);
 				editor_plugin_screen=main_plugin;
@@ -1844,7 +1848,6 @@ void EditorNode::_run(bool p_current,const String& p_custom) {
 
 			run_filename=scene->get_filename();
 		} else {
-			args=run_settings_dialog->get_custom_arguments();
 			current_filename=scene->get_filename();
 		}
 
@@ -1919,9 +1922,14 @@ void EditorNode::_run(bool p_current,const String& p_custom) {
 		log->clear();
 	}
 
+	if (bool(EDITOR_DEF("run/always_open_output_on_play", true))) {
+		make_bottom_panel_item_visible(log);
+	}
 
 	List<String> breakpoints;
 	editor_data.get_editor_breakpoints(&breakpoints);
+    
+	args = Globals::get_singleton()->get("editor/main_run_args");
 
 	Error error = editor_run.run(run_filename,args,breakpoints,current_filename);
 
@@ -3271,7 +3279,7 @@ Error EditorNode::save_translatable_strings(const String& p_to_file) {
 	OS::Time time = OS::get_singleton()->get_time();
 	f->store_line("# Translation Strings Dump.");
 	f->store_line("# Created By.");
-	f->store_line("# \t" VERSION_FULL_NAME " (c) 2008-2016 Juan Linietsky, Ariel Manzur.");
+	f->store_line("# \t" VERSION_FULL_NAME " (c) 2008-2017 Juan Linietsky, Ariel Manzur.");
 	f->store_line("# From Scene: ");
 	f->store_line("# \t"+get_edited_scene()->get_filename());
 	f->store_line("");
@@ -5454,7 +5462,7 @@ EditorNode::EditorNode() {
 
 	editor_import_export->load_config();
 
-	GLOBAL_DEF("editor/main_run_args","$exec -path $path -scene $scene $main_scene");
+	GLOBAL_DEF("editor/main_run_args","$scene");
 
 	ObjectTypeDB::set_type_enabled("CollisionShape",true);
 	ObjectTypeDB::set_type_enabled("CollisionShape2D",true);
@@ -5953,6 +5961,7 @@ EditorNode::EditorNode() {
 	debug_button->set_tooltip(TTR("Debug options"));
 
 	p=debug_button->get_popup();
+	p->set_hide_on_item_selection(false);
 	p->add_check_item(TTR("Deploy with Remote Debug"),RUN_DEPLOY_REMOTE_DEBUG);
 	p->set_item_tooltip(p->get_item_count()-1,TTR("When exporting or deploying, the resulting executable will attempt to connect to the IP of this computer in order to be debugged."));
 	p->add_check_item(TTR("Small Deploy with Network FS"),RUN_FILE_SERVER);
@@ -6417,7 +6426,7 @@ EditorNode::EditorNode() {
 	about->get_ok()->set_text(TTR("Thanks!"));
 	about->set_hide_on_ok(true);
 	Label *about_text = memnew( Label );
-	about_text->set_text(VERSION_FULL_NAME"\n(c) 2008-2016 Juan Linietsky, Ariel Manzur.\n");
+	about_text->set_text(VERSION_FULL_NAME"\n(c) 2008-2017 Juan Linietsky, Ariel Manzur.\n");
 	about_text->set_pos(Point2(gui_base->get_icon("Logo","EditorIcons")->get_size().width+30,20));
 	gui_base->add_child(about);
 	about->add_child(about_text);

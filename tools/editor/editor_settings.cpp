@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -546,6 +546,8 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
 	hints["text_editor/tab_size"]=PropertyInfo(Variant::INT,"text_editor/tab_size",PROPERTY_HINT_RANGE,"1, 64, 1"); // size of 0 crashes.
 	set("text_editor/draw_tabs", true);
 
+	set("text_editor/line_numbers_zero_padded", false);
+
 	set("text_editor/show_line_numbers", true);
 	set("text_editor/show_breakpoint_gutter", true);
 
@@ -1024,6 +1026,29 @@ void EditorSettings::set_optimize_save(bool p_optimize) {
 	optimize_save=p_optimize;
 }
 
+String EditorSettings::get_last_selected_language()
+{
+	Ref<ConfigFile> cf = memnew( ConfigFile );
+	String path = get_project_settings_path().plus_file("project_metadata.cfg");
+	Error err = cf->load(path);
+	if (err != OK) {
+		return "";
+	}
+	Variant last_selected_language = cf->get_value("script_setup", "last_selected_language");
+	if (last_selected_language.get_type() != Variant::STRING)
+		return "";
+	return static_cast<String>(last_selected_language);
+}
+
+void EditorSettings::set_last_selected_language(String p_language)
+{
+	Ref<ConfigFile> cf = memnew( ConfigFile );
+	String path = get_project_settings_path().plus_file("project_metadata.cfg");
+	cf->load(path);
+	cf->set_value("script_setup", "last_selected_language", p_language);
+	cf->save(path);
+}
+
 void EditorSettings::_bind_methods() {
 
 	ObjectTypeDB::bind_method(_MD("erase","property"),&EditorSettings::erase);
@@ -1073,7 +1098,6 @@ EditorSettings::EditorSettings() {
 	}
 
 	_load_defaults();
-	save_changed_setting=false;
 
 
 }

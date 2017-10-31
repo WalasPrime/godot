@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -60,6 +60,9 @@ void ButtonGroup::_pressed(Object *p_button) {
 
 		BaseButton *bb=E->get();
 		bb->set_pressed( b==bb );
+		if (b==bb){
+			emit_signal("button_selected", b);
+		}
 	}
 }
 
@@ -153,6 +156,7 @@ void ButtonGroup::_bind_methods() {
 	ObjectTypeDB::bind_method(_MD("_pressed"),&ButtonGroup::_pressed);
 	ObjectTypeDB::bind_method(_MD("set_pressed_button","button:BaseButton"),&ButtonGroup::_pressed);
 
+	ADD_SIGNAL( MethodInfo("button_selected",PropertyInfo(Variant::OBJECT,"button",PROPERTY_HINT_RESOURCE_TYPE,"BaseButton")));
 }
 
 ButtonGroup::ButtonGroup() : BoxContainer(true)

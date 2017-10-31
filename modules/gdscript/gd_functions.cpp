@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -88,6 +88,7 @@ const char *GDFunctions::get_func_name(Function p_func) {
 		"convert",
 		"typeof",
 		"type_exists",
+		"char",
 		"str",
 		"print",
 		"printt",
@@ -538,6 +539,12 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 			r_ret = ObjectTypeDB::type_exists(*p_args[0]);
 
 		} break;
+		case TEXT_CHAR: {
+			VALIDATE_ARG_COUNT(1);
+			VALIDATE_ARG_NUM(0);
+			CharType result[2] = {*p_args[0], 0};
+			r_ret=String(result);
+		} break;
 		case TEXT_STR: {
 
 			String str;
@@ -840,10 +847,6 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 				r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
 				r_error.argument=0;
 				r_ret=Variant();
-			} else if(((String)(*p_args[0])).begins_with("/")) {
-				r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-				r_error.argument=0;
-				r_ret=RTR("Paths cannot start with '/', absolute paths must start with 'res://', 'user://', or 'local://'");
 			} else {
 				r_ret=ResourceLoader::load(*p_args[0]);
 			}
@@ -1138,6 +1141,7 @@ bool GDFunctions::is_deterministic(Function p_func) {
 		case TYPE_CONVERT:
 		case TYPE_OF:
 		case TYPE_EXISTS:
+		case TEXT_CHAR:
 		case TEXT_STR:
 		case COLOR8:
 // enable for debug only, otherwise not desirable - case GEN_RANGE:
@@ -1405,6 +1409,13 @@ MethodInfo GDFunctions::get_info(Function p_func) {
 
 			MethodInfo mi("type_exists",PropertyInfo(Variant::STRING,"type"));
 			mi.return_val.type=Variant::BOOL;
+			return mi;
+
+		} break;
+		case TEXT_CHAR: {
+
+			MethodInfo mi("char",PropertyInfo(Variant::INT,"ascii"));
+			mi.return_val.type=Variant::STRING;
 			return mi;
 
 		} break;

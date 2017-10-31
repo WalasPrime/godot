@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -166,6 +166,7 @@ void Node::_notification(int p_notification) {
 
 void Node::_propagate_ready() {
 
+	data.ready_notified=true;
 	data.blocked++;
 	for (int i=0;i<data.children.size();i++) {
 
@@ -1308,6 +1309,17 @@ String Node::_generate_serial_child_name(Node *p_child) {
 	if (name=="") {
 
 		name = p_child->get_type();
+		// Adjust casing according to project setting. The current type name is expected to be in PascalCase.
+		switch (Globals::get_singleton()->get("node/name_casing").operator int()) {
+			case NAME_CASING_PASCAL_CASE:
+				break;
+			case NAME_CASING_CAMEL_CASE:
+				name[0] = name.to_lower()[0];
+				break;
+			case NAME_CASING_SNAKE_CASE:
+				name = name.camelcase_to_underscore(true);
+				break;
+		}
 	}
 
 	// Extract trailing number
@@ -2485,6 +2497,12 @@ void Node::replace_by(Node* p_node,bool p_keep_data) {
 			rd.name=E->get().name;
 			rd.value=get(rd.name);
 		}
+
+		List<GroupInfo> groups;
+		get_groups(&groups);
+
+		for(List<GroupInfo>::Element *E=groups.front();E;E=E->next())
+			p_node->add_to_group(E->get().name, E->get().persistent);
 	}
 
 	_replace_connections_target(p_node);
@@ -2656,7 +2674,9 @@ void Node::_set_tree(SceneTree *p_tree) {
 
 
 		_propagate_enter_tree();
-		_propagate_ready(); //reverse_notification(NOTIFICATION_READY);
+		if (!data.parent || data.parent->data.ready_notified) { // No parent (root) or parent ready
+			_propagate_ready(); //reverse_notification(NOTIFICATION_READY);
+		}
 
 		tree_changed_b=data.tree;
 
@@ -2802,6 +2822,8 @@ void Node::_bind_methods() {
 
 	_GLOBAL_DEF("node/name_num_separator",0);
 	Globals::get_singleton()->set_custom_property_info("node/name_num_separator",PropertyInfo(Variant::INT,"node/name_num_separator",PROPERTY_HINT_ENUM, "None,Space,Underscore,Dash"));
+	_GLOBAL_DEF("node/name_casing",NAME_CASING_PASCAL_CASE);
+	Globals::get_singleton()->set_custom_property_info("node/name_casing",PropertyInfo(Variant::INT,"node/name_casing",PROPERTY_HINT_ENUM,"PascalCase,camelCase,snake_case"));
 
 
 	ObjectTypeDB::bind_method(_MD("_add_child_below_node","node:Node","child_node:Node","legible_unique_name"),&Node::add_child_below_node,DEFVAL(false));
@@ -2993,6 +3015,7 @@ Node::Node() {
 	data.fixed_process=false;
 	data.idle_process=false;
 	data.inside_tree=false;
+	data.ready_notified=false;
 
 	data.owner=NULL;
 	data.OW=NULL;

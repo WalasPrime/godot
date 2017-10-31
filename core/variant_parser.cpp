@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -1177,16 +1177,16 @@ Error VariantParser::parse_value(Token& token,Variant &value,Stream *p_stream,in
 
 		} else if (id=="IntArray") {
 
-			Vector<int32_t> args;
-			Error err = _parse_construct<int32_t>(p_stream,args,line,r_err_str);
+			Vector<int> args;
+			Error err = _parse_construct<int>(p_stream,args,line,r_err_str);
 			if (err)
 				return err;
 
-			DVector<int32_t> arr;
+			DVector<int> arr;
 			{
 				int len=args.size();
 				arr.resize(len);
-				DVector<int32_t>::Write w = arr.write();
+				DVector<int>::Write w = arr.write();
 				for(int i=0;i<len;i++) {
 					w[i]=int(args[i]);
 				}

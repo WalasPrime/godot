@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -95,6 +95,8 @@ class TextEdit : public Control  {
 		Color word_highlighted_color;
 		Color search_result_color;
 		Color search_result_border_color;
+		Color symbol_color;
+		Color background_color;
 
 		int row_height;
 		int line_spacing;
@@ -187,9 +189,7 @@ class TextEdit : public Control  {
 
 
 	//syntax coloring
-	Color symbol_color;
 	HashMap<String,Color> keywords;
-	Color custom_bg_color;
 
 	Vector<ColorRegion> color_regions;
 
@@ -232,6 +232,7 @@ class TextEdit : public Control  {
 	bool text_changed_dirty;
 	bool undo_enabled;
 	bool line_numbers;
+	bool line_numbers_zero_padded;
 	bool line_length_guideline;
 	int line_length_guideline_col;
 	bool draw_breakpoint_gutter;
@@ -470,8 +471,6 @@ public:
 
 	void add_keyword_color(const String& p_keyword,const Color& p_color);
 	void add_color_region(const String& p_begin_key=String(),const String& p_end_key=String(),const Color &p_color=Color(),bool p_line_only=false);
-	void set_symbol_color(const Color& p_color);
-	void set_custom_bg_color(const Color& p_color);
 	void clear_colors();
 
 	int get_v_scroll() const;
@@ -488,6 +487,8 @@ public:
 
 	void set_show_line_numbers(bool p_show);
 	bool is_show_line_numbers_enabled() const;
+
+	void set_line_numbers_zero_padded(bool p_zero_padded);
 
 	void set_show_line_length_guideline(bool p_show);
 	void set_line_length_guideline_column(int p_column);

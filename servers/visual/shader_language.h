@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -332,14 +332,14 @@ private:
 		void get_error(String *r_error, int *r_line, int *r_column) {
 
 			*r_error=error;
-			*r_line=get_token(pos).line;
-			*r_column=get_token(pos).col;
+			*r_line=get_next_token(0).line;
+			*r_column=get_next_token(0).col;
 		}
 
 
 
-		Token get_token(int ofs=0) const { int idx=pos+ofs; if (idx<0 || idx>=tokens.size()) return Token(TK_ERROR); return tokens[idx]; }
-		TokenType get_token_type(int ofs=0) const { int idx=pos+ofs;  if (idx<0 || idx>=tokens.size()) return TK_ERROR; return tokens[idx].type; }
+		Token get_next_token(int ofs=0) const { int idx=pos+ofs; if (idx<0 || idx>=tokens.size()) return Token(TK_ERROR); return tokens[idx]; }
+		TokenType get_next_token_type(int ofs=0) const { int idx=pos+ofs;  if (idx<0 || idx>=tokens.size()) return TK_ERROR; return tokens[idx].type; }
 		void advance(int p_amount=1) { pos+=p_amount; }
 		bool is_at_end() const { return pos>=tokens.size(); }
 
